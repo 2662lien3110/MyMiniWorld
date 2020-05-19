@@ -221,11 +221,11 @@ def envstep(env, action_num):
 def plotGraph(episodes, codeName, rew_all, Plotrew_all, list_lr, list_ac_loss, i_episode, entropy):
     plt.figure()
     plt.plot(episodes, rew_all, 'r--', episodes, list_lr, 'b.')
-    plt.savefig('/home/anna/gym-miniworld/scripts/train/Graphs/' + str(codeName) + 'A2C2Episode' + str(i_episode) + '.png')
+    plt.savefig('/home/anna/gym-miniworld/scripts/' + str(codeName) + 'A2C2Episode' + str(i_episode) + '.png')
     plt.close()
     plt.figure()
     plt.plot(episodes, Plotrew_all, 'r--', episodes, list_ac_loss, 'b--')
-    plt.savefig('/home/anna/gym-miniworld/scripts/train/Graphs/' + str(codeName) + 'A2C2Loss' + str(i_episode) + '.png')
+    plt.savefig('/home/anna/gym-miniworld/scripts/' + str(codeName) + 'A2C2Loss' + str(i_episode) + '.png')
     plt.close()
 
 def read():
