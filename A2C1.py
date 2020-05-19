@@ -66,10 +66,10 @@ class Agent(object):
         #print("Log", log_batch.size()) #[12,1]
         #print(action_batch)
         vals, logs, entropy = self.actor.evaluate_actions(state_batch, action_batch)
-        advantages = (reward_batch - vals).to(device)
+        advantages = (reward_batch - vals)
         critic_loss = advantages.pow(2).mean()
         actor_loss = -(advantages.detach() * logs).mean()
-        loss = (actor_loss+critic_loss*self.lambdaCrit -self.lambdaEntrop*entropy).to(device)
+        loss = (actor_loss+critic_loss*self.lambdaCrit -self.lambdaEntrop*entropy)
         #print(loss)
         self.optimizer_actor.zero_grad()
 
