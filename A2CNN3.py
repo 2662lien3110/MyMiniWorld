@@ -26,7 +26,7 @@ class CNNBase(nn.Module):
             init_(nn.Conv2d(chan, 32, kernel_size=5, stride=2)),
             nn.BatchNorm2d(32),
             nn.ReLU(),
-            Print(),
+            #Print(),
             init_(nn.Conv2d(32, 32, kernel_size=5, stride=2)),
             nn.BatchNorm2d(32),
             nn.ReLU(),
@@ -35,11 +35,11 @@ class CNNBase(nn.Module):
             nn.BatchNorm2d(32),
             nn.ReLU(),
 
-            Print(),
+            #Print(),
             Flatten(),
 
             init_(nn.Linear(1568, self.atoms)),
-            Print(),
+            #Print(),
             nn.ReLU()
         )
 
@@ -59,8 +59,8 @@ class CNNBase(nn.Module):
         #print(x.size())
 
         x = self.main(x)
-        print("x")
-        print(x.size())
+        #print("x")
+        #print(x.size())
 
 
         return x, self.critic_linear(x)
