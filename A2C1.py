@@ -164,7 +164,7 @@ class Agent(object):
                 loss, aclos, critlos, entropy = self.learn(batch_frame)
                 batch_frame = 1
                 #do_print(loss, aclos, critlos, entropy)
-                if ((entropy < 0.45) and (reward > 1)) and i_episode>5:
+                if ((entropy < 0.25) and (reward > 1)) and i_episode>5:
                     print("TEST", reward, entropy)
                     #self.save_model('train/test/')
                     #self.test(m_obs, m_reward, m_log, m_value, m_action, state)
