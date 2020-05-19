@@ -60,11 +60,12 @@ class Agent(object):
         Qvals = []
         #state_batch, action_batch, next_state_batch, reward_batch, log_batch, value_batch = self.memory.sample_spec(frame)
         state_batch, action_batch, next_state_batch, reward_batch, log_batch, value_batch = self.memory.sample(frame)
-        state_batch = state_batch.to(torch.float)
+        state_batch = state_batch.to(torch.float, device=device)
+        state_batch = action_batch.to(torch.float, device=device)
         #print(next_state_batch.size()) #[12,3,60,80]
         #print("Log", log_batch.size()) #[12,1]
         #print(action_batch)
-        vals, logs, entropy = self.actor.evaluate_actions(state_batch, action_batch)
+        vals, logs, entropy = self.actor.evaluate_actions(state_batch, action_batch, device)
         advantages = (reward_batch - vals).to(device)
         critic_loss = advantages.pow(2).mean()
         actor_loss = -(advantages.detach() * logs).mean()
