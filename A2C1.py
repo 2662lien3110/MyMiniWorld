@@ -163,7 +163,7 @@ class Agent(object):
                 #print("Update time")
                 loss, aclos, critlos, entropy = self.learn(batch_frame)
                 batch_frame = 1
-                do_print(loss, aclos, critlos, entropy)
+                #do_print(loss, aclos, critlos, entropy)
                 if ((entropy < 0.45) and (reward > 1)) and i_episode>5:
                     print("TEST", reward, entropy)
                     #self.save_model('train/test/')
@@ -299,8 +299,8 @@ def train(episode, env):
             #Agent1.save_model('train/')
             write(Agent1, codeName, AveRew, sum_episodes, tot_frame)
 
-        print('epi %d frame %5d acloss %2.5f reward %2.5f'%\
-               (i_episode, frame, ac_loss, _rew))
+        print('epi %d frame %5d loss %2.5f entropy %2.5f reward %2.5f'%\
+               (i_episode, frame, ac_loss, entropy,  _rew))
 
 
     AveRew = tot_rew / eps
