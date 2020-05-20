@@ -75,13 +75,13 @@ class rpm(object):
 
     def clear_some_ipt(self):
         temp = []
-        for i in range(600):
+        for i in range(399):
             j = i * 5
             temp.append(self.ipt_buffer[j])
         self.clear_ipt()
         for i in range(len(temp) - 1):
             self.ipt_buffer.append(temp[i])
-        self.ipt_index = 601
+        self.ipt_index = 400
         print(len(self.ipt_buffer))
 
 
