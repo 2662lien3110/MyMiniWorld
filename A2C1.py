@@ -25,7 +25,7 @@ class Agent(object):
         self.atoms = 80
         self.actions = 3
         self.channels = 9
-        self.gamma = 0.99
+        self.gamma = 0.2
         self.lambdaEntrop = 0.2
         self.lambdaCrit = 0.5
         self.weightDecay = False
