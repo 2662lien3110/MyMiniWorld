@@ -25,7 +25,7 @@ class Agent(object):
         self.atoms = 80
         self.actions = 3
         self.channels = 9
-        self.gamma = 0.99
+        self.gamma = 0.75
         self.lambdaEntrop = 0.2
         self.lambdaCrit = 0.5
         self.weightDecay = False
@@ -63,13 +63,16 @@ class Agent(object):
         state_batch = state_batch.to(dtype=torch.float, device=device)
         action_batch = action_batch.to(dtype=torch.float, device=device)
         reward_batch = reward_batch.to(dtype=torch.float, device=device)
+        next_state_batch = next_state_batch.to(dtype=torch.float, device=device)
         #print(next_state_batch.size()) #[12,3,60,80]
         #print("Log", log_batch.size()) #[12,1]
         #print(action_batch)
         vals, logs, entropy = self.actor.evaluate_actions(state_batch, action_batch)
         vals = vals.to(dtype=torch.float, device=device)
         entropy = entropy.to(dtype=torch.float, device=device)
-        advantages = (reward_batch - vals).to(device)
+        new_vals, _, _ = self.actor.evaluate_actions(next_state_batch, action_batch)
+        new_vals = new_vals.to(dtype=torch.float, device=device)
+        advantages = (reward_batch + self.gamma*new_vals- vals).to(device)
         critic_loss = advantages.pow(2).mean()
         actor_loss = -(advantages.detach() * logs).mean()
         loss = (actor_loss+critic_loss*self.lambdaCrit -self.lambdaEntrop*entropy).to(device)
