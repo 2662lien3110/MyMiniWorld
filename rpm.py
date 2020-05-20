@@ -62,7 +62,7 @@ class rpm(object):
         # self.clear()
         # for i in range(len(temp)-1):
         #     self.buffer.append(temp[i])
-        if len(self.buffer)>27000:
+        if len(self.buffer)>24000:
             for i in range(1,4000):
                 j = i * 5
                 temp1.append(self.buffer[j])
@@ -118,7 +118,7 @@ class rpm(object):
             else:
                 for tmp in self.recent:
                     self.push_ipt(tmp)
-            if (len(self.ipt_buffer)) > 3000:
+            if (len(self.ipt_buffer)) > 2000:
                 self.clear_some_ipt()
             #print(len(self.ipt_buffer))
             self.clear_recent()
