@@ -24,8 +24,8 @@ class Agent(object):
         self.batch_size = 64
         self.atoms = 80
         self.actions = 3
-        self.channels = 9
-        self.gamma = 0.2
+        self.channels = 3
+        self.gamma = 0.0
         self.lambdaEntrop = 0.2
         self.lambdaCrit = 0.5
         self.weightDecay = False
@@ -113,7 +113,7 @@ class Agent(object):
         m_action = [torch.FloatTensor([0]) for _ in range(10)]
         m_value = [torch.FloatTensor([0]) for _ in range(10)]
         m_log = [torch.FloatTensor([0]) for _ in range(10)]
-        state = [state_to(m_obs[-3:]) for _ in range(10)]  # the last 3 items
+        state = [state_to(m_obs[-1:]) for _ in range(10)]  # the last 3 items
         #print("state: ", type(state), len(state))
         _reward =[]
         done = False
@@ -141,7 +141,7 @@ class Agent(object):
 
 
             m_obs[-1] = np2torch(s_1)
-            state[-1] = state_to(m_obs[-3:])
+            state[-1] = state_to(m_obs[-1:])
             m_reward[-1] = torch.FloatTensor([r])
             m_action[-1] = torch.FloatTensor([action_num])
             m_value[-1] = torch.FloatTensor([value])
@@ -300,7 +300,7 @@ def train(episode, env):
             plotGraph(episodes, codeName, rew_all, Plotrew_all, list_lr, list_ac_loss, i_episode, entropy )
             AveRew = tot_rew / (eps+1)
             #Agent1.save_model('train/')
-            write(Agent1, codeName, AveRew, sum_episodes, tot_frame)
+            #write(Agent1, codeName, AveRew, sum_episodes, tot_frame)
 
         print('epi %d frame %5d loss %2.5f entropy %2.5f reward %2.5f'%\
                (i_episode, frame, ac_loss, entropy,  _rew))
