@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.DEBUG)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Agent(object):
     def __init__(self, **kwargs):
-        self.lr_act = 9e-4
+        self.lr_act = 3e-5
         self.lr_crit = 0
         self.batch_size = 64
         self.atoms = 80
