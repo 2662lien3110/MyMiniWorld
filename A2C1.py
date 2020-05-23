@@ -18,16 +18,16 @@ logging.basicConfig(level=logging.DEBUG)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Agent(object):
-    def __init__(self, **kwargs):
-        self.lr_act = 9e-4
+    def __init__(self, lr, **kwargs):
+        self.lr_act = lr
         self.lr_crit = 0
         self.batch_size = 64
         self.atoms = 80
         self.actions = 3
-        self.channels = 3
+        self.channels = 9
         self.gamma = 0.0
-        self.lambdaEntrop = 0.2
-        self.lambdaCrit = 0.5
+        self.lambdaEntrop = 0.1667
+        self.lambdaCrit = 0.41667
         self.weightDecay = False
         self.actor = CNNBase(self.channels, self.actions, self.atoms)
         self.optimizer_actor = optim.RMSprop(self.actor.parameters(), lr=self.lr_act, alpha= 0.99, eps=1e-5)#, weight_decay=self.weightDecay)
@@ -113,7 +113,7 @@ class Agent(object):
         m_action = [torch.FloatTensor([0]) for _ in range(10)]
         m_value = [torch.FloatTensor([0]) for _ in range(10)]
         m_log = [torch.FloatTensor([0]) for _ in range(10)]
-        state = [state_to(m_obs[-1:]) for _ in range(10)]  # the last 3 items
+        state = [state_to(m_obs[-3:]) for _ in range(10)]  # the last 3 items
         #print("state: ", type(state), len(state))
         _reward =[]
         done = False
@@ -141,7 +141,7 @@ class Agent(object):
 
 
             m_obs[-1] = np2torch(s_1)
-            state[-1] = state_to(m_obs[-1:])
+            state[-1] = state_to(m_obs[-3:])
             m_reward[-1] = torch.FloatTensor([r])
             m_action[-1] = torch.FloatTensor([action_num])
             m_value[-1] = torch.FloatTensor([value])
@@ -255,9 +255,9 @@ def write_episode(_rew, frame, entropy):
 
 
 
-def train(episode, env):
+def train(episode, env, a):
 
-    Agent1 = Agent()
+    Agent1 = Agent(a)
     Agent1.actor= Agent1.actor.to(device = device)
     #Agent1.load_model('train' + str(Agent1.tryNum) + '/')
     sum_episodes = episode
@@ -321,7 +321,8 @@ if __name__ == '__main__':
     #env.framerate = 5
     done = False
     obs = env.reset()
+    a = float(sys.argv[1])
     env.seed(1000)
     #print(obs.shape())
     env.max_episode_steps =1000
-    train(250, env)
+    train(250, env, a)

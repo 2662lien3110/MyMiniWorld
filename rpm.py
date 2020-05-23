@@ -70,7 +70,7 @@ class rpm(object):
             self.clear()
             for i in range(len(temp1) - 1):
                 self.buffer.append(temp1[i])
-            print(len(self.buffer))
+            #print(len(self.buffer))
 
 
     def clear_some_ipt(self):
@@ -82,7 +82,7 @@ class rpm(object):
         for i in range(len(temp) - 1):
             self.ipt_buffer.append(temp[i])
         self.ipt_index = 400
-        print(len(self.ipt_buffer))
+        #print(len(self.ipt_buffer))
 
 
 
