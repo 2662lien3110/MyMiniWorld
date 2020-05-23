@@ -2,7 +2,6 @@ import gym
 import torch
 import math
 import time
-import system as sys
 import random
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,8 +18,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Agent(object):
-    def __init__(self, lr, **kwargs):
-        self.lr_act = lr
+    def __init__(self, **kwargs):
+        self.lr_act = 9e-4
         self.lr_crit = 0
         self.batch_size = 64
         self.atoms = 80
@@ -256,9 +255,9 @@ def write_episode(_rew, frame, entropy):
 
 
 
-def train(episode, env, a):
+def train(episode, env):
 
-    Agent1 = Agent(a)
+    Agent1 = Agent()
     Agent1.actor= Agent1.actor.to(device = device)
     #Agent1.load_model('train' + str(Agent1.tryNum) + '/')
     sum_episodes = episode
@@ -322,8 +321,8 @@ if __name__ == '__main__':
     #env.framerate = 5
     done = False
     obs = env.reset()
-    a = float(sys.argv[1])
+    #a = float(sys.argv[1])
     env.seed(1000)
     #print(obs.shape())
     env.max_episode_steps =1000
-    train(250, env, a)
+    train(250, env)
