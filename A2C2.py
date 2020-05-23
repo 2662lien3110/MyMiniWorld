@@ -251,7 +251,7 @@ def write(Agent1, cdName, AveRew, sum_episodes, tot_frame):
 def write_episode(_rew, frame, entropy):
     with open('A2C-EpisodeResults.csv', 'a', newline='') as write_obj:
         csv_writer = writer(write_obj)
-        csv_writer.writerow([_rew, frame, entropy])
+        csv_writer.writerow([_rew, frame])
 
 
 
