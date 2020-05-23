@@ -30,7 +30,7 @@ class Agent(object):
         self.lambdaCrit = 0.41667
         self.weightDecay = False
         self.actor = CNNBase(self.channels, self.actions, self.atoms)
-        self.optimizer_actor = optim.RMSprop(self.actor.parameters(), lr=self.lr_act, alpha= 0.99, eps=1e-5)#, weight_decay=self.weightDecay)
+        self.optimizer_actor = optim.adam(self.actor.parameters(), lr=self.lr_act) #, alpha= 0.99, eps=1e-5)#, weight_decay=self.weightDecay)
         self.memory = rpm(250000)
         self.maxReward = 0
         self.minFrame = 0
