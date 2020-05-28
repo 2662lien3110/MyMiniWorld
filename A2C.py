@@ -19,18 +19,18 @@ logging.basicConfig(level=logging.DEBUG)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Agent(object):
     def __init__(self, **kwargs):
-        self.lr_act = 5.5e-4
+        self.lr_act = 0.03
         self.lr_crit = 0
         self.batch_size = 64
         self.atoms = 80
         self.actions = 3
         self.channels = 9
-        self.gamma = 0.0
-        self.lambdaEntrop = 0.1667
+        self.gamma = 0.65
+        self.lambdaEntrop = 0.05
         self.lambdaCrit = 0.41667
         self.weightDecay = False
         self.actor = CNNBase(self.channels, self.actions, self.atoms)
-        self.optimizer_actor = optim.Adam(self.actor.parameters(), lr=self.lr_act) #, alpha= 0.99, eps=1e-5)#, weight_decay=self.weightDecay)
+        self.optimizer_actor = optim.RMSprop(self.actor.parameters(), lr= self.lr_act, alpha=0.88, eps=1e-5)#, alpha= 0.99, eps=1e-5)#, weight_decay=self.weightDecay)
         self.memory = rpm(250000)
         self.maxReward = 0
         self.minFrame = 0
