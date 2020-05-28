@@ -134,10 +134,10 @@ class rpm(object):
         #print(len(batch))
         #batch += self.ipt_buffer
 
-        if len(self.ipt_buffer) < 32:
+        if len(self.ipt_buffer) < 16:
             batch += random.sample(self.ipt_buffer, len(self.ipt_buffer))
         else:
-            batch += random.sample(self.ipt_buffer, 32)
+            batch += random.sample(self.ipt_buffer, 16)
 
         self.clear_some()
         self.clear_recent()
