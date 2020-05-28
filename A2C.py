@@ -251,7 +251,7 @@ def write(Agent1, cdName, AveRew, sum_episodes, tot_frame):
 def write_episode(_rew, frame, entropy):
     with open('A2C-EpisodeResults.csv', 'a', newline='') as write_obj:
         csv_writer = writer(write_obj)
-        csv_writer.writerow([_rew, frame])
+        csv_writer.writerow([_rew, frame, entropy])
 
 
 
@@ -325,4 +325,4 @@ if __name__ == '__main__':
     env.seed(1000)
     #print(obs.shape())
     env.max_episode_steps =1000
-    train(250, env)
+    train(1000, env)

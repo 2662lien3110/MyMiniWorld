@@ -30,7 +30,7 @@ class Agent(object):
         self.lambdaCrit = 0.41667
         self.weightDecay = False
         self.actor = CNNBase(self.channels, self.actions, self.atoms)
-        self.optimizer_actor = optim.Adam(self.actor.parameters(), lr=self.lr_act) #, alpha= 0.99, eps=1e-5)#, weight_decay=self.weightDecay)
+        self.optimizer_actor = optim.RMSprop(self.actor.parameters(), lr= self.lr_act, alpha=0.88, eps=1e-5)#, alpha= 0.99, eps=1e-5)#, weight_decay=self.weightDecay)
         self.memory = rpm(250000)
         self.maxReward = 0
         self.minFrame = 0
@@ -251,7 +251,7 @@ def write(Agent1, cdName, AveRew, sum_episodes, tot_frame):
 def write_episode(_rew, frame, entropy):
     with open('A2C-EpisodeResults.csv', 'a', newline='') as write_obj:
         csv_writer = writer(write_obj)
-        csv_writer.writerow([_rew, frame])
+        csv_writer.writerow([_rew, frame, entropy])
 
 
 
@@ -325,4 +325,4 @@ if __name__ == '__main__':
     env.seed(1000)
     #print(obs.shape())
     env.max_episode_steps =1000
-    train(250, env)
+    train(1000, env)
