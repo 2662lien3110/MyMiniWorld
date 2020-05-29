@@ -11,7 +11,7 @@ import torch.optim as optim
 import torch.distributions.categorical as categorical
 from gym_miniworld.wrappers import *
 from A2CNN3 import *
-from rpm import rpm
+from rpm1 import rpm
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -98,8 +98,8 @@ class Agent(object):
     def eval(self):
         self.actor.eval()
 
-    def save_model(self, path):
-        torch.save(self.actor.state_dict(), path + 'A2C.pkl')
+    def save_model(self):
+        torch.save(self.actor.state_dict(),'A2C.pkl')
         self.memory.save_ipt(path)
 
     def load_model(self, path):
@@ -253,12 +253,16 @@ def write_episode(_rew, frame, entropy):
         csv_writer = writer(write_obj)
         csv_writer.writerow([_rew, frame, entropy])
 
-
+def write_start():
+    with open('A2C-EpisodeResults.csv', 'a', newline='') as write_obj:
+        csv_writer = writer(write_obj)
+        csv_writer.writerow(["START"])
 
 def train(episode, env):
 
     Agent1 = Agent()
     Agent1.actor= Agent1.actor.to(device = device)
+    write_start()
     #Agent1.load_model('train' + str(Agent1.tryNum) + '/')
     sum_episodes = episode
     rew_all = []
@@ -289,8 +293,8 @@ def train(episode, env):
             Agent1.maxReward = _rew
             Agent1.minFrame = frame
             Agent1.bestEps = i_episode
-            #if entropy < 0.7:
-                #Agent1.save_model('/')
+            if entropy < 0.7:
+                Agent1.save_model()
         tot_frame += frame
         Plottot_rew = _rew - 1
         Plotrew_all.append(Plottot_rew)

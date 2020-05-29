@@ -25,7 +25,7 @@ class Agent(object):
         self.atoms = 80
         self.actions = 3
         self.channels = 9
-        self.gamma = 0.65
+        self.gamma = 0.05
         self.lambdaEntrop = 0.05
         self.lambdaCrit = 0.41667
         self.weightDecay = False
@@ -99,7 +99,7 @@ class Agent(object):
         self.actor.eval()
 
     def save_model(self, path):
-        torch.save(self.actor.state_dict(), path + 'A2C.pkl')
+        torch.save(self.actor.state_dict(),'A2C.pkl')
         self.memory.save_ipt(path)
 
     def load_model(self, path):
@@ -253,7 +253,10 @@ def write_episode(_rew, frame, entropy):
         csv_writer = writer(write_obj)
         csv_writer.writerow([_rew, frame])
 
-
+def write_start():
+    with open('A2C-EpisodeResults.csv', 'a', newline='') as write_obj:
+        csv_writer = writer(write_obj)
+        csv_writer.writerow(["START"])
 
 def train(episode, env):
 
@@ -289,8 +292,8 @@ def train(episode, env):
             Agent1.maxReward = _rew
             Agent1.minFrame = frame
             Agent1.bestEps = i_episode
-            #if entropy < 0.7:
-                #Agent1.save_model('/')
+            if entropy < 0.7:
+                Agent1.save_model('/')
         tot_frame += frame
         Plottot_rew = _rew - 1
         Plotrew_all.append(Plottot_rew)
