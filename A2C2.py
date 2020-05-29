@@ -19,13 +19,13 @@ logging.basicConfig(level=logging.DEBUG)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Agent(object):
     def __init__(self, **kwargs):
-        self.lr_act = 0.06
+        self.lr_act = 0.042
         self.lr_crit = 0
         self.batch_size = 64
         self.atoms = 80
         self.actions = 3
         self.channels = 9
-        self.gamma = 0.05
+        self.gamma = 0.45
         self.lambdaEntrop = 0.05
         self.lambdaCrit = 0.41667
         self.weightDecay = False
@@ -99,7 +99,7 @@ class Agent(object):
         self.actor.eval()
 
     def save_model(self, path):
-        torch.save(self.actor.state_dict(),'A2C.pkl')
+        torch.save(self.actor.state_dict(),'A2C2.pkl')
         #self.memory.save_ipt(path)
 
     def load_model(self, path):
@@ -262,6 +262,7 @@ def train(episode, env):
 
     Agent1 = Agent()
     Agent1.actor= Agent1.actor.to(device = device)
+    write_start()
     #Agent1.load_model('train' + str(Agent1.tryNum) + '/')
     sum_episodes = episode
     rew_all = []
@@ -328,4 +329,4 @@ if __name__ == '__main__':
     env.seed(1000)
     #print(obs.shape())
     env.max_episode_steps =1000
-    train(150, env)
+    train(1000, env)

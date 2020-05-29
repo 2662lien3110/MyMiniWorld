@@ -26,7 +26,7 @@ class Agent(object):
         self.actions = 3
         self.channels = 9
         self.gamma = 0.65
-        self.lambdaEntrop = 0.1
+        self.lambdaEntrop = 0.05
         self.lambdaCrit = 0.41667
         self.weightDecay = False
         self.actor = CNNBase(self.channels, self.actions, self.atoms)
@@ -98,8 +98,8 @@ class Agent(object):
     def eval(self):
         self.actor.eval()
 
-    def save_model(self):
-        torch.save(self.actor.state_dict(),'A2C.pkl')
+    def save_model(self, path):
+        torch.save(self.actor.state_dict(), path + 'A2C1.pkl')
         #self.memory.save_ipt(path)
 
     def load_model(self, path):
@@ -262,6 +262,7 @@ def train(episode, env):
 
     Agent1 = Agent()
     Agent1.actor= Agent1.actor.to(device = device)
+    write_start()
     #Agent1.load_model('train' + str(Agent1.tryNum) + '/')
     sum_episodes = episode
     rew_all = []
@@ -293,7 +294,7 @@ def train(episode, env):
             Agent1.minFrame = frame
             Agent1.bestEps = i_episode
             if entropy < 0.7:
-                Agent1.save_model()
+                Agent1.save_model('/')
         tot_frame += frame
         Plottot_rew = _rew - 1
         Plotrew_all.append(Plottot_rew)
