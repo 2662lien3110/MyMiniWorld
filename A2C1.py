@@ -100,7 +100,7 @@ class Agent(object):
 
     def save_model(self):
         torch.save(self.actor.state_dict(),'A2C.pkl')
-        self.memory.save_ipt(path)
+        #self.memory.save_ipt(path)
 
     def load_model(self, path):
         self.actor.load_state_dict(torch.load(path + 'A2C.pkl'))
