@@ -11,7 +11,7 @@ import torch.optim as optim
 import torch.distributions.categorical as categorical
 from gym_miniworld.wrappers import *
 from A2CNN3 import *
-from rpm1 import rpm
+from rpm import rpm
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -66,6 +66,7 @@ class Agent(object):
         next_state_batch = next_state_batch.to(dtype=torch.float, device=device)
         #print(next_state_batch.size()) #[12,3,60,80]
         #print("Log", log_batch.size()) #[12,1]
+
         #print(action_batch)
         vals, logs, entropy = self.actor.evaluate_actions(state_batch, action_batch)
         vals = vals.to(dtype=torch.float, device=device)

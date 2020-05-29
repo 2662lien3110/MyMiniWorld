@@ -11,7 +11,7 @@ import torch.optim as optim
 import torch.distributions.categorical as categorical
 from gym_miniworld.wrappers import *
 from A2CNN3 import *
-from rpm import rpm
+from rpm1 import rpm
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -98,7 +98,7 @@ class Agent(object):
     def eval(self):
         self.actor.eval()
 
-    def save_model(self):
+    def save_model(self, path):
         torch.save(self.actor.state_dict(),'A2C2.pkl')
         #self.memory.save_ipt(path)
 
@@ -294,7 +294,7 @@ def train(episode, env):
             Agent1.minFrame = frame
             Agent1.bestEps = i_episode
             if entropy < 0.7:
-                Agent1.save_model()
+                Agent1.save_model('/')
         tot_frame += frame
         Plottot_rew = _rew - 1
         Plotrew_all.append(Plottot_rew)
