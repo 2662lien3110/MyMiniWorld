@@ -26,7 +26,7 @@ class Agent(object):
         self.actions = 3
         self.channels = 9
         self.gamma = 0.65
-        self.lambdaEntrop = 0.1
+        self.lambdaEntrop = 0.05
         self.lambdaCrit = 0.41667
         self.weightDecay = False
         self.actor = CNNBase(self.channels, self.actions, self.atoms)
@@ -126,6 +126,8 @@ class Agent(object):
             action_num, value, log = self.get_action(state[-1])
             s_1, r, done, info, t = envstep(env, action_num)
             frame += t
+            if r==0:
+                r=-1
             batch_frame += t
             _reward.append(r)
             #disc_reward = 0
