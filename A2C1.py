@@ -98,8 +98,8 @@ class Agent(object):
     def eval(self):
         self.actor.eval()
 
-    def save_model(self, path):
-        torch.save(self.actor.state_dict(), path + 'A2C1.pkl')
+    def save_model(self):
+        torch.save(self.actor.state_dict(),'A2C1.pkl')
         #self.memory.save_ipt(path)
 
     def load_model(self, path):
@@ -294,7 +294,7 @@ def train(episode, env):
             Agent1.minFrame = frame
             Agent1.bestEps = i_episode
             if entropy < 0.7:
-                Agent1.save_model('/')
+                Agent1.save_model()
         tot_frame += frame
         Plottot_rew = _rew - 1
         Plotrew_all.append(Plottot_rew)
