@@ -20,6 +20,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Agent(object):
     def __init__(self, **kwargs):
         self.lr_act = 0.009
+        print(self.lr_act)
         self.lr_crit = 0
         self.batch_size = 64
         self.atoms = 80
