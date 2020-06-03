@@ -67,7 +67,7 @@ class Agent(object):
             return random.randint(0, self.actions-1)
         with torch.no_grad():
             self.eval()
-            state = state.to(dtype=torch.float)#, device=device)
+            state = state.to(dtype=torch.float, device=device)
             state = state.reshape([1] + list(state.shape))
             tmp   = (self.policy(state) * self.support).sum(2).max(1)[1]
         return (int (tmp))
@@ -93,17 +93,17 @@ class Agent(object):
             delta_z = float(self.Vmax - self.Vmin) / (self.atoms - 1)
             support = torch.linspace(self.Vmin, self.Vmax, self.atoms).to(device)
 
-            next_dist   = self.target(next_state) * support
+            next_dist   = self.target(next_state).to(device) * support
             next_action = next_dist.sum(2).max(1)[1]
-            next_action = next_action.unsqueeze(1).unsqueeze(1).expand(next_dist.size(0), 1, next_dist.size(2))
+            next_action = next_action.unsqueeze(1).unsqueeze(1).expand(next_dist.size(0), 1, next_dist.size(2)).to(device)
             print("projection distribution")
             #DoubleDQN
-            next_dist   = self.policy(next_state).gather(1, next_action).squeeze(1)
+            next_dist   = (self.policy(next_state).gather(1, next_action).squeeze(1)).to(device)
 
-            reward  = reward.expand_as(next_dist)
-            done    = done.expand_as(next_dist)
-            gam     = gam.expand_as(next_dist)
-            support = support.unsqueeze(0).expand_as(next_dist)
+            reward  = reward.expand_as(next_dist).to(device)
+            done    = done.expand_as(next_dist).to(device)
+            gam     = gam.expand_as(next_dist).to(device)
+            support = support.unsqueeze(0).expand_as(next_dist).to(device)
 
             Tz = reward + (1 - done) * gam * support
             Tz = Tz.clamp(self.Vmin, self.Vmax)
@@ -140,11 +140,14 @@ class Agent(object):
         state_batch, action_batch, next_state_batch, reward_batch, done_batch, gam_batch = self.memory.sample(self.batch_size)
 
         action_batch = action_batch.unsqueeze(1).expand(action_batch.size(0), 1, self.atoms)
+        action_batch = action_batch.to(device)
         dist_pred    = self.policy(state_batch).gather(1, action_batch).squeeze(1)
+        dist_pred = dist_pred.to(device)
         dist_true    = self.projection_distribution(next_state_batch, reward_batch, done_batch, gam_batch)
 
         dist_pred.data.clamp_(0.001, 0.999)
         loss = - (dist_true * dist_pred.log()).sum(1).mean()
+        loss=loss.to(device)
         print("loss", loss)
         self.optimizer_policy.zero_grad()
         loss.backward()
