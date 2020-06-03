@@ -62,9 +62,9 @@ class rpm(object):
         # self.clear()
         # for i in range(len(temp)-1):
         #     self.buffer.append(temp[i])
-        if len(self.buffer)>4000:
-            for i in range(1,999):
-                j = i * 4
+        if len(self.buffer)>4000:#22000:
+            for i in range(1,499):
+                j = i + 3500
                 temp1.append(self.buffer[j])
             #self.clear_long()
             self.clear()
@@ -126,18 +126,18 @@ class rpm(object):
     def sample(self, batch_size, only_state=False):# device=torch.device("cuda"), only_state=False):
         #print("sample")
         batch = self.buffer[-2:]#long_buffer[-1:]
-        if len(self.buffer) < 128:
+        if len(self.buffer) < 63:
             batch += random.sample(self.buffer, len(self.buffer))
         else:
-            batch += random.sample(self.buffer, 128)
+            batch += random.sample(self.buffer, 63)
         #batch += random.sample(self.buffer, 200)
         #print(len(batch))
         #batch += self.ipt_buffer
 
-        if len(self.ipt_buffer) < 63:
+        if len(self.ipt_buffer) < 65:
             batch += random.sample(self.ipt_buffer, len(self.ipt_buffer))
         else:
-            batch += random.sample(self.ipt_buffer, 63)
+            batch += random.sample(self.ipt_buffer, 65)
 
         self.clear_some()
         self.clear_recent()
@@ -146,15 +146,15 @@ class rpm(object):
             res = torch.stack(tuple(item[3] for item in batch), dim=0)
             return res#.to(device)
         else:
-            item_count = 6
+            item_count = 7
             res = []
             #print("start stack")
-            for i in range(6):
+            for i in range(7):
                 k = torch.stack(tuple(item[i] for item in batch), dim=0)
                 #if i == 0 or i == 2:
                 #    k = k.to(dtype=torch.float)
                 res.append(k)#.to(device))
-            return res[0], res[1], res[2], res[3], res[4], res[5]
+            return res[0], res[1], res[2], res[3], res[4], res[5], res[6]
     def __len__(self):
         return len(self.buffer)
 

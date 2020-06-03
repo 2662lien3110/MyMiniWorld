@@ -63,8 +63,8 @@ class rpm(object):
         # for i in range(len(temp)-1):
         #     self.buffer.append(temp[i])
         if len(self.buffer)>4000:#22000:
-            for i in range(1,999):
-                j = i * 4
+            for i in range(1,499):
+                j = i + 3500
                 temp1.append(self.buffer[j])
             #self.clear_long()
             self.clear()
@@ -125,11 +125,11 @@ class rpm(object):
 
     def sample(self, batch_size, only_state=False):# device=torch.device("cuda"), only_state=False):
         #print("sample")
-        batch = self.buffer[-2:]#long_buffer[-1:]
-        if len(self.buffer) < 63:
-            batch += random.sample(self.buffer, len(self.buffer))
-        else:
-            batch += random.sample(self.buffer, 63)
+        batch = self.buffer[-65:]#long_buffer[-1:]
+        # if len(self.buffer) < 63:
+        #     batch += random.sample(self.buffer, len(self.buffer))
+        # else:
+        #     batch += random.sample(self.buffer, 63)
         #batch += random.sample(self.buffer, 200)
         #print(len(batch))
         #batch += self.ipt_buffer

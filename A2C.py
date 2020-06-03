@@ -19,14 +19,14 @@ logging.basicConfig(level=logging.DEBUG)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Agent(object):
     def __init__(self, **kwargs):
-        self.lr_act = 0.042
+        self.lr_act = 0.039
         self.lr_crit = 0
         self.batch_size = 64
         self.atoms = 80
         self.actions = 3
         self.channels = 9
         self.gamma = 0.65
-        self.lambdaEntrop = 0.0
+        self.lambdaEntrop = 0.05
         self.lambdaCrit = 0.41667
         self.weightDecay = False
         self.actor = CNNBase(self.channels, self.actions, self.atoms)
@@ -59,11 +59,12 @@ class Agent(object):
         Qval = 0
         Qvals = []
         #state_batch, action_batch, next_state_batch, reward_batch, log_batch, value_batch = self.memory.sample_spec(frame)
-        state_batch, action_batch, next_state_batch, reward_batch, log_batch, value_batch = self.memory.sample(frame)
+        state_batch, action_batch, next_state_batch, reward_batch, log_batch, value_batch, done_batch = self.memory.sample(frame)
         state_batch = state_batch.to(dtype=torch.float, device=device)
         action_batch = action_batch.to(dtype=torch.float, device=device)
         reward_batch = reward_batch.to(dtype=torch.float, device=device)
         next_state_batch = next_state_batch.to(dtype=torch.float, device=device)
+        done_batch = done_batch.to(dtype=torch.float, device=device)
         #print(next_state_batch.size()) #[12,3,60,80]
         #print("Log", log_batch.size()) #[12,1]
 
@@ -73,7 +74,7 @@ class Agent(object):
         entropy = entropy.to(dtype=torch.float, device=device)
         new_vals, _, _ = self.actor.evaluate_actions(next_state_batch, action_batch)
         new_vals = new_vals.to(dtype=torch.float, device=device)
-        advantages = (reward_batch + self.gamma*new_vals- vals).to(device)
+        advantages = (reward_batch + (1-done_batch)*self.gamma*new_vals- vals).to(device)
         critic_loss = advantages.pow(2).mean()
         actor_loss = -(advantages.detach() * logs).mean()
         loss = (actor_loss+critic_loss*self.lambdaCrit -self.lambdaEntrop*entropy).to(device)
@@ -114,6 +115,7 @@ class Agent(object):
         m_action = [torch.FloatTensor([0]) for _ in range(10)]
         m_value = [torch.FloatTensor([0]) for _ in range(10)]
         m_log = [torch.FloatTensor([0]) for _ in range(10)]
+        m_done = [torch.FloatTensor([0]) for _ in range(10)]
         state = [state_to(m_obs[-3:]) for _ in range(10)]  # the last 3 items
         #print("state: ", type(state), len(state))
         _reward =[]
@@ -139,6 +141,7 @@ class Agent(object):
                 m_action[i] = m_action[i + 1]
                 m_value[i] = m_value[i+1]
                 m_log[i] = m_log[i+1]
+                m_done[i] = m_done[i + 1]
 
 
             m_obs[-1] = np2torch(s_1)
@@ -147,6 +150,7 @@ class Agent(object):
             m_action[-1] = torch.FloatTensor([action_num])
             m_value[-1] = torch.FloatTensor([value])
             m_log[-1] = torch.FloatTensor([log])
+            m_done[-1] = torch.FloatTensor([done])
             reward = torch.tensor(sum(_reward))
             # print(reward)
             important = r > 0
@@ -156,12 +160,10 @@ class Agent(object):
                     gam = pow(self.gamma, i)
                     rew = torch.FloatTensor([gam*m_reward[-1]])
                     #print(str(-1-i))
-                    self.memory.push([state[-1-i], m_action[-i], state[-i], rew, m_log[-i], m_value[-i]],
+                    self.memory.push([state[-1-i], m_action[-i], state[-i], rew, m_log[-i], m_value[-i], m_done[-i]],
                                  important)
                     #vf important = r>5
-            if not self.Good:
-                self.memory.push([state[-2], m_action[-1], state[-1], m_reward[-1], m_log[-1] , m_value[-1]],
-                             important)
+
             #print(batch_frame)
             if batch_frame == self.batch_size:
                 #print("Update time")
@@ -183,13 +185,6 @@ class Agent(object):
 
                 loss, aclos, critlos, entropy = self.learn(batch_frame)
                 do_print(loss, aclos, critlos, entropy)
-                if ((entropy < 0.45) and (reward > 1)) and i_episode>5:
-                    print("TEST", reward, entropy)
-                    #self.save_model('train/test/')
-                    #self.test(m_obs, m_reward, m_log, m_value, m_action, state)
-                    #self.Good = True
-                else:
-                    self.Good = False
 
                 #obs = env.reset()
 
@@ -220,6 +215,10 @@ def envstep(env, action_num):
     if rew>0:
         print("REWARD")
         #rew = torch.LongTensor(rew)
+    if done:
+        done = 1
+    else:
+        done = 0
     return obs, rew, done, info, 1
 
 def plotGraph(episodes, codeName, rew_all, Plotrew_all, list_lr, list_ac_loss, i_episode, entropy):
@@ -330,4 +329,4 @@ if __name__ == '__main__':
     env.seed(1000)
     #print(obs.shape())
     env.max_episode_steps =1000
-    train(1000, env)
+    train(700, env)
