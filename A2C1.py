@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.DEBUG)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Agent(object):
     def __init__(self, **kwargs):
-        self.lr_act = 1e-7
+        self.lr_act = 0.039
         self.lr_crit = 0
         self.batch_size = 64
         self.atoms = 80
@@ -296,6 +296,8 @@ def train(episode, env):
             Agent1.bestEps = i_episode
             if entropy < 0.7:
                 Agent1.save_model()
+                if _rew>= 14:
+                    Agent1.lr_act = 1e-7
         tot_frame += frame
         Plottot_rew = _rew - 1
         Plotrew_all.append(Plottot_rew)
