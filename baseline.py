@@ -98,12 +98,11 @@ class Agent(object):
             next_action = next_action.unsqueeze(1).unsqueeze(1).expand(next_dist.size(0), 1, next_dist.size(2)).to(device)
             print("projection distribution")
             #DoubleDQN
-            next_dist   = (self.policy(next_state).to(device)
-            next_dist = next_dist.gather(1, next_action).to(device).squeeze(1)).to(device)
-
-            reward  = reward.expand_as(next_dist).to(device)
-            done    = done.expand_as(next_dist).to(device)
-            gam     = gam.expand_as(next_dist).to(device)
+            next_dist   = self.policy(next_state).to(device)
+            next_dist = next_dist.gather(1, next_action).to(device).squeeze(1).to(device)
+            reward  = reward.to(device).expand_as(next_dist).to(device)
+            done    = done.to(device).expand_as(next_dist).to(device)
+            gam     = gam.to(device).expand_as(next_dist).to(device)
             support = support.unsqueeze(0).expand_as(next_dist).to(device)
 
             Tz = reward + (1 - done) * gam * support
