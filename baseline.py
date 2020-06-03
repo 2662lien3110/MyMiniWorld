@@ -140,7 +140,7 @@ class Agent(object):
         state_batch, action_batch, next_state_batch, reward_batch, done_batch, gam_batch = self.memory.sample(self.batch_size)
 
         action_batch = action_batch.unsqueeze(1).expand(action_batch.size(0), 1, self.atoms)
-        action_batch = action_batch.to(device)
+        #action_batch = action_batch.to(device)
         dist_pred    = self.policy(state_batch).gather(1, action_batch).squeeze(1)
         dist_pred = dist_pred.to(device)
         dist_true    = self.projection_distribution(next_state_batch, reward_batch, done_batch, gam_batch)
