@@ -163,7 +163,8 @@ class Agent(object):
                     self.memory.push([state[-1-i], m_action[-i], state[-i], rew, m_log[-i], m_value[-i], m_done[-i]],
                                  important)
                     #vf important = r>5
-
+            self.memory.push([state[-2], m_action[-1], state[-1], m_reward[-1], m_log[-1], m_value[-1], m_done[-1]],
+                                 important)
             #print(batch_frame)
             if batch_frame == self.batch_size:
                 #print("Update time")
