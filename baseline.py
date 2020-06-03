@@ -67,7 +67,7 @@ class Agent(object):
             return random.randint(0, self.actions-1)
         with torch.no_grad():
             self.eval()
-            state = state.to(dtype=torch.float, device=device)
+            state = state.to(dtype=torch.float)#, device=device)
             state = state.reshape([1] + list(state.shape))
             tmp   = (self.policy(state) * self.support).sum(2).max(1)[1]
         return (int (tmp))
