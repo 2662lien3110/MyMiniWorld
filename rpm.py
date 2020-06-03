@@ -62,9 +62,9 @@ class rpm(object):
         # self.clear()
         # for i in range(len(temp)-1):
         #     self.buffer.append(temp[i])
-        if len(self.buffer)>4000:#22000:
-            for i in range(1,999):
-                j = i * 4
+        if len(self.buffer)>22000:
+            for i in range(1,1999):
+                j = i * 11
                 temp1.append(self.buffer[j])
             #self.clear_long()
             self.clear()
