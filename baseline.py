@@ -44,7 +44,8 @@ class Agent(object):
         self.lr = 3e-4
         self.batch_size = 64
         self.gamma = 0.999
-        self.epsilon = 0.8
+        self.epsilon = 0.85
+        print(self.epsilon)
         self.Vmin = -25
         self.Vmax = 25
         self.atoms = 80
