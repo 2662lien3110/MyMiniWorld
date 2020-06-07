@@ -82,11 +82,11 @@ class Agent(object):
         if rew>0:
             self.reward.append(rew)
         #print("update epsilon")
-        if len(self.reward) > 25:#100:
+        if len(self.reward) > 100:#100:
             self.epsilon = 0.1
-        elif len(self.reward) > 15: #60:
+        elif len(self.reward) > 60: #60:
             self.epsilon = 0.2
-        elif np.sum(self.reward) > 5:
+        elif np.sum(self.reward) > 15:
             self.epsilon = max(0.4, self.epsilon * 0.8)
         print(self.epsilon)
 
