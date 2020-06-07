@@ -241,7 +241,7 @@ class Agent(object):
                     reward = torch.tensor([reward])
                     _done = torch.tensor([1.0])
                     gam = torch.tensor([gam])
-                    important = r > 0
+                    important = reward > 0
                     self.memory.push([state[-TD_step+i], m_action[-TD_step+i+1], state[-1], reward, _done, gam], important)
                 env.reset()
 
