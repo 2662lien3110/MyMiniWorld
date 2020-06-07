@@ -75,11 +75,11 @@ class Agent(object):
     def updata_target(self):
         #print("update target")
         self.target.load_state_dict(self.policy.state_dict())
-        print("update target")
+        #print("update target")
 
     def updata_epsilon(self, rew):
         self.reward.append(rew)
-        print("update epsilon")
+        #print("update epsilon")
         if len(self.reward) > 25:#100:
             self.epsilon = 0.1
         elif len(self.reward) > 15: #60:
@@ -96,7 +96,7 @@ class Agent(object):
             next_dist   = self.target(next_state).to(device) * support
             next_action = next_dist.sum(2).max(1)[1]
             next_action = next_action.unsqueeze(1).unsqueeze(1).expand(next_dist.size(0), 1, next_dist.size(2)).to(device)
-            print("projection distribution")
+            #print("projection distribution")
             #DoubleDQN
             next_dist   = self.policy(next_state).to(device)
             next_dist = next_dist.gather(1, next_action).to(device).squeeze(1).to(device)
@@ -136,7 +136,7 @@ class Agent(object):
 
         if len(self.memory) < self.batch_size:
             return _loss, _Q_pred
-        print("Learn")
+        #print("Learn")
         state_batch, action_batch, next_state_batch, reward_batch, done_batch, gam_batch = self.memory.sample(self.batch_size)
 
         action_batch = action_batch.unsqueeze(1).expand(action_batch.size(0), 1, self.atoms)
@@ -149,7 +149,7 @@ class Agent(object):
         dist_pred.data.clamp_(0.001, 0.999)
         loss = - (dist_true * dist_pred.log()).sum(1).mean()
         loss=loss.to(device)
-        print("loss", loss)
+        #print("loss", loss)
         self.optimizer_policy.zero_grad()
         loss.backward()
         self.optimizer_policy.step()
@@ -162,7 +162,7 @@ class Agent(object):
     def train_data(self, time):
         loss = []
         Q = []
-        print("train data")
+        #print("train data")
         for i in range(time):
             _loss, _Q = self.learn()
             loss.append(_loss)
@@ -285,7 +285,7 @@ def write_start():
 
 def train(episode):
 
-    print('Start train')
+    #print('Start train')
     env = gym.make('MiniWorld-OneRoom-v0')
 
     agent1 = Agent()  # treechop
@@ -309,9 +309,9 @@ def train(episode):
 
         all_frame += frame
         if all_frame > 200:
-            print("time")
+            #print("time")
             time = frame // 200
-            print(time)
+            #print(time)
         else :
             time = 0
         loss, Q = agent1.train_data(time)
