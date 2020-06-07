@@ -88,6 +88,7 @@ class Agent(object):
             self.epsilon = 0.2
         elif np.sum(self.reward) > 5:
             self.epsilon = max(0.4, self.epsilon * 0.8)
+        print(self.epsilon)
 
     def projection_distribution(self, next_state, reward, done, gam):
         with torch.no_grad():
