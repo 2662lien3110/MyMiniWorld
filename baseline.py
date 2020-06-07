@@ -41,7 +41,7 @@ def time_limit(time_out):
 class Agent(object):
 
     def __init__(self, **kwargs):
-        self.lr = 3e-4
+        self.lr = 3e-5
         self.batch_size = 64
         self.gamma = 0.999
         self.epsilon = 0.85
@@ -86,8 +86,8 @@ class Agent(object):
             self.epsilon = 0.1
         elif len(self.reward) > 60: #60:
             self.epsilon = 0.2
-        elif np.sum(self.reward) > 15:
-            self.epsilon = max(0.4, self.epsilon * 0.8)
+        elif np.sum(self.reward) > 22:
+            self.epsilon = max(0.4, self.epsilon * 0.95)
         print(self.epsilon)
 
     def projection_distribution(self, next_state, reward, done, gam):
