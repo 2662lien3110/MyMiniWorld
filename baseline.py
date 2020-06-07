@@ -272,10 +272,10 @@ def envstep(env, action_num):
             return obs, reward, done, info, i+1
     return obs, reward, done, info, 4
 
-def write_episode(loss, _rew):
+def write_episode(loss, _rew, Q):
     with open('BSL-EpisodeResults.csv', 'a', newline='') as write_obj:
         csv_writer = writer(write_obj)
-        csv_writer.writerow([_rew, loss])
+        csv_writer.writerow([_rew, loss, Q])
 
 def write_start():
     with open('BSL-EpisodeResults.csv', 'a', newline='') as write_obj:
@@ -315,7 +315,7 @@ def train(episode):
         else :
             time = 0
         loss, Q = agent1.train_data(time)
-        write_episode(loss, _reward)
+        write_episode(loss, _reward, Q)
         agent1.updata_epsilon(_reward)
         rew_all.append(_reward)
 
