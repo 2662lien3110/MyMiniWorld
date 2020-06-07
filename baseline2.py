@@ -44,7 +44,8 @@ class Agent(object):
         self.lr = 3e-3
         self.batch_size = 64
         self.gamma = 0.999
-        self.epsilon = 0.1
+        self.epsilon = 0.85
+        print(self.epsilon)
         self.Vmin = -25
         self.Vmax = 25
         self.atoms = 80
@@ -78,13 +79,14 @@ class Agent(object):
         #print("update target")
 
     def updata_epsilon(self, rew):
-        self.reward.append(rew)
+        if rew>0:
+            self.reward.append(rew)
         #print("update epsilon")
         if len(self.reward) > 25:#100:
             self.epsilon = 0.1
         elif len(self.reward) > 15: #60:
             self.epsilon = 0.2
-        elif np.sum(self.reward) > 0:
+        elif np.sum(self.reward) > 5:
             self.epsilon = max(0.4, self.epsilon * 0.8)
 
     def projection_distribution(self, next_state, reward, done, gam):
