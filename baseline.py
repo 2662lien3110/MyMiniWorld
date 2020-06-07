@@ -228,7 +228,7 @@ class Agent(object):
                 reward = torch.tensor([reward])
                 _done = torch.tensor([0.0])
                 gam = torch.tensor([gam])
-                important = reward > 0.001
+                important = reward > 0.0
                 if frame >= TD_step and reward < 2.1:
                     self.memory.push([state[-TD_step-1], m_action[-TD_step], state[-1], reward, _done, gam], important)
 
@@ -241,7 +241,7 @@ class Agent(object):
                     reward = torch.tensor([reward])
                     _done = torch.tensor([1.0])
                     gam = torch.tensor([gam])
-                    important = frame < 17900
+                    important = r > 0
                     self.memory.push([state[-TD_step+i], m_action[-TD_step+i+1], state[-1], reward, _done, gam], important)
                 env.reset()
 
@@ -268,7 +268,7 @@ def envstep(env, action_num):
         obs, rew, done, info = env.step(action)
         #env.render('human')
         reward += rew
-        if done or action_num == 3 or action_num == 4:
+        if done: #or action_num == 3 or action_num == 4:
             return obs, reward, done, info, i+1
     return obs, reward, done, info, 4
 
@@ -334,4 +334,4 @@ def train(episode):
     env.close()
 
 if __name__ == '__main__':
-    train(700)
+    train(500)
