@@ -41,7 +41,7 @@ def time_limit(time_out):
 class Agent(object):
 
     def __init__(self, **kwargs):
-        self.lr = 3e-2
+        self.lr = 3e-4
         self.batch_size = 64
         self.gamma = 0.999
         self.epsilon = 0.85
@@ -308,12 +308,12 @@ def train(episode):
         #m_inv = [obs['inventory'] for _ in range(10)]
         _reward = 0
         frame = 0
-        _reward, frame = agent1.step(1000, env, m_obs)#, m_inv)
+        _reward, frame = agent1.step(20000, env, m_obs)#, m_inv)
 
         all_frame += frame
-        if all_frame > 200:
+        if all_frame > 20000:
             #print("time")
-            time = frame // 200
+            time = frame // 20
             #print(time)
         else :
             time = 0
@@ -337,4 +337,4 @@ def train(episode):
     env.close()
 
 if __name__ == '__main__':
-    train(700)
+    train(250)
