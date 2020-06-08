@@ -274,8 +274,12 @@ def train(episode, env):
     list_lr = []
     list_ac_loss = []
     list_crit_loss = []
+    AveRew = 0
+    #Agent1.save_model('train/')
+   
     tot_rew = 0
     tot_frame = 0
+    write(Agent1, codeName, AveRew, sum_episodes, tot_frame)
     for i_episode in range(sum_episodes):
         print("episode: ", i_episode)
         eps = i_episode
