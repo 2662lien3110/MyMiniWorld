@@ -125,7 +125,7 @@ class rpm(object):
             self.clear_recent()
 
     def sample(self, batch_size, only_state=False):# device=torch.device("cuda"), only_state=False):
-        #print("sample")
+        print("sample")
         batch = self.buffer[-2:]#long_buffer[-1:]
         if len(self.buffer) < 63:
             batch += random.sample(self.buffer, len(self.buffer))
