@@ -41,7 +41,7 @@ def time_limit(time_out):
 class Agent(object):
 
     def __init__(self, **kwargs):
-        self.lr = 3e-5
+        self.lr = 3e-2
         self.batch_size = 64
         self.gamma = 0.999
         self.epsilon = 0.85
@@ -337,4 +337,4 @@ def train(episode):
     env.close()
 
 if __name__ == '__main__':
-    train(500)
+    train(700)
