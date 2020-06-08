@@ -11,7 +11,7 @@ import torch.optim as optim
 import torch.distributions.categorical as categorical
 from gym_miniworld.wrappers import *
 from A2CNN3 import *
-from rpm import rpm
+from rpm1 import rpm
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -19,14 +19,16 @@ logging.basicConfig(level=logging.DEBUG)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Agent(object):
     def __init__(self, **kwargs):
-        self.lr_act = 0.0042
+        self.lr_act = 0.0038
+        print(self.lr_act)
         self.lr_crit = 0
         self.batch_size = 64
         self.atoms = 80
         self.actions = 3
         self.channels = 9
         self.gamma = 0.65
-        self.lambdaEntrop = 0.05
+        self.lambdaEntrop = 0.7
+        print(self.lambdaEntrop)
         self.lambdaCrit = 0.41667
         self.weightDecay = False
         self.actor = CNNBase(self.channels, self.actions, self.atoms)
