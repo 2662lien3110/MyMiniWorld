@@ -86,7 +86,7 @@ class Agent(object):
             self.epsilon = 0.1
         elif len(self.reward) > 60: #60:
             self.epsilon = 0.2
-        elif np.sum(self.reward) > 22:
+        elif np.sum(self.reward) > 15:
             self.epsilon = max(0.4, self.epsilon * 0.95)
         print(self.epsilon)
 
@@ -196,6 +196,7 @@ class Agent(object):
     def step(self, step, env, m_obs, test=False):#, m_inv, test=False):
         TD_step = 2
         _reward = 0
+        print(step)
         frame = 0
         done = False
         m_reward = [0 for _ in range(10)]
