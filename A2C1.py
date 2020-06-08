@@ -11,7 +11,7 @@ import torch.optim as optim
 import torch.distributions.categorical as categorical
 from gym_miniworld.wrappers import *
 from A2CNN3 import *
-from rpm1 import rpm
+from rpm import rpm
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
