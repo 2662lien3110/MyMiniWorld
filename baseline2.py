@@ -337,4 +337,6 @@ def train(episode):
     env.close()
 
 if __name__ == '__main__':
-    train(500)
+    print(700)
+    train(700)
+    
