@@ -322,7 +322,7 @@ def train(episode):
         write_episode(loss, _reward, Q)
         agent1.updata_epsilon(_reward)
         rew_all.append(_reward)
-        if ((epi+1)%10 ==0):
+        if ((i_episode+1)%10 ==0):
             agent1.save_model()
         print('epi %d all frame %d frame %5d Q %2.5f loss %2.5f reward %3d (%3.3f)'%\
                 (i_episode, all_frame, frame, Q, loss, _reward, np.mean(rew_all[-50:])))
