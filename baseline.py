@@ -314,7 +314,7 @@ def train(episode):
         all_frame += frame
         if all_frame > 20000:
             #print("time")
-            time = frame // 200
+            time = frame // 20
             #print(time)
         else :
             time = 0
