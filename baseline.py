@@ -314,7 +314,7 @@ def train(episode):
         all_frame += frame
         if all_frame > 20000:
             #print("time")
-            time = frame // 20
+            time = frame // 200
             #print(time)
         else :
             time = 0
@@ -322,7 +322,8 @@ def train(episode):
         write_episode(loss, _reward, Q)
         agent1.updata_epsilon(_reward)
         rew_all.append(_reward)
-
+        if ((epi+1)%10 ==0):
+            agent1.save_model()
         print('epi %d all frame %d frame %5d Q %2.5f loss %2.5f reward %3d (%3.3f)'%\
                 (i_episode, all_frame, frame, Q, loss, _reward, np.mean(rew_all[-50:])))
         # writer.add_scalar('validate/Q-value', Q, i_episode)
