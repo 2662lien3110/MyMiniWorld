@@ -178,7 +178,7 @@ class Agent(object):
     def save_model(self):
         torch.save(self.policy.state_dict(),'DQN.pkl')
 
-    def load_model(self, path):
+    def load_model(self):
         self.policy.load_state_dict(torch.load('DQN.pkl'))
 
     # def updata_device(self, device=torch.device("cuda")):
