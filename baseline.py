@@ -44,7 +44,7 @@ class Agent(object):
         self.lr = 3e-4
         self.batch_size = 64
         self.gamma = 0.999
-        self.epsilon = 0.85
+        self.epsilon = 0.4
         print(self.epsilon)
         self.Vmin = -25
         self.Vmax = 25
@@ -82,9 +82,9 @@ class Agent(object):
         if rew>0:
             self.reward.append(rew)
         #print("update epsilon")
-        if len(self.reward) > 100:#100:
+        if np.sum(self.reward) > 100:#100:
             self.epsilon = 0.1
-        elif len(self.reward) > 60: #60:
+        elif np.sum(self.reward) > 60: #60:
             self.epsilon = 0.2
         elif np.sum(self.reward) > 15:
             self.epsilon = max(0.4, self.epsilon * 0.95)
@@ -294,6 +294,7 @@ def train(episode):
 
     agent1 = Agent()  # treechop
     #agent1.updata_device()
+    agent1.load_model()
     write_start()
     env.max_episode_steps = 1000
     sum_episodes = episode
