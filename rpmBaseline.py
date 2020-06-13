@@ -40,7 +40,7 @@ class rpm(object):
 
     def clear_some(self):
         for i in range(500):
-            j = i + 499
+            j = i + 19499
             self.buffer[i] = self.buffer[j]
         self.index = 501
 
@@ -67,7 +67,7 @@ class rpm(object):
             self.buffer.append(obj)
         self.index = (self.index + 1) % self.buffer_size
         #print("Index: ", self.index)
-        if self.index > 1000:
+        if self.index > 20000:
             self.clear_some()
         self.push_recent(obj)
         #print("important: ", important)
