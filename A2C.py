@@ -11,7 +11,7 @@ import torch.optim as optim
 import torch.distributions.categorical as categorical
 from gym_miniworld.wrappers import *
 from A2CNN3 import *
-from rpm2 import rpm
+from rpm import rpm
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -27,7 +27,7 @@ class Agent(object):
         self.actions = 3
         self.channels = 9
         self.gamma = 0.65
-        self.lambdaEntrop = 0.28
+        self.lambdaEntrop = 0.32
         print(self.lambdaEntrop)
         self.lambdaCrit = 0.41667
         self.weightDecay = False
@@ -334,4 +334,4 @@ if __name__ == '__main__':
     env.seed(1000)
     #print(obs.shape())
     env.max_episode_steps =1000
-    train(700, env)
+    train(800, env)
