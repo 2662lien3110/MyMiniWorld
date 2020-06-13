@@ -294,7 +294,7 @@ def train(episode):
 
     agent1 = Agent()  # treechop
     #agent1.updata_device()
-    agent1.load_model()
+    #agent1.load_model()
     write_start()
     env.max_episode_steps = 1000
     sum_episodes = episode
@@ -315,7 +315,7 @@ def train(episode):
         all_frame += frame
         if all_frame > 20000:
             #print("time")
-            time = frame // 20
+            time = frame // 200
             #print(time)
         else :
             time = 0
