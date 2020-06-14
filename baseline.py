@@ -42,6 +42,7 @@ class Agent(object):
 
     def __init__(self, **kwargs):
         self.lr = 3e-4
+        print("updated")
         self.batch_size = 64
         self.gamma = 0.999
         self.epsilon = 0.85
@@ -82,9 +83,9 @@ class Agent(object):
         if rew>0:
             self.reward.append(rew)
         #print("update epsilon")
-        if np.sum(self.reward) > 100:#100:
+        if len(self.reward) > 100:#100:
             self.epsilon = 0.1
-        elif np.sum(self.reward) > 60: #60:
+        elif len(self.reward) > 60: #60:
             self.epsilon = 0.2
         elif np.sum(self.reward) > 15:
             self.epsilon = max(0.4, self.epsilon * 0.95)
@@ -177,6 +178,9 @@ class Agent(object):
 
     def save_model(self):
         torch.save(self.policy.state_dict(),'DQN.pkl')
+        
+    def save_model_test(self):
+        torch.save(self.policy.state_dict(),'DQNTest.pkl')
 
     def load_model(self):
         self.policy.load_state_dict(torch.load('DQN.pkl'))
@@ -291,11 +295,12 @@ def train(episode):
 
     #print('Start train')
     env = gym.make('MiniWorld-OneRoom-v0')
-
+    
     agent1 = Agent()  # treechop
     #agent1.updata_device()
     #agent1.load_model()
     write_start()
+    max_reward = 0
     env.max_episode_steps = 1000
     sum_episodes = episode
     all_frame = 0
@@ -311,7 +316,8 @@ def train(episode):
         _reward = 0
         frame = 0
         _reward, frame = agent1.step(20000, env, m_obs)#, m_inv)
-
+        if _reward>max_reward:
+            save_model_test()
         all_frame += frame
         if all_frame > 20000:
             #print("time")
