@@ -317,7 +317,7 @@ def train(episode):
         frame = 0
         _reward, frame = agent1.step(20000, env, m_obs)#, m_inv)
         if _reward>max_reward:
-            save_model_test()
+            agent1.save_model_test()
         all_frame += frame
         if all_frame > 20000:
             #print("time")
