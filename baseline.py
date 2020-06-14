@@ -42,7 +42,7 @@ class Agent(object):
 
     def __init__(self, **kwargs):
         self.lr = 3e-4
-        print("updated two")
+        print("updated three")
         self.batch_size = 64
         self.gamma = 0.999
         self.epsilon = 0.85
@@ -317,6 +317,8 @@ def train(episode):
         frame = 0
         _reward, frame = agent1.step(20000, env, m_obs)#, m_inv)
         if _reward>max_reward:
+            max_reward = _reward
+            print("SAVED")
             agent1.save_model_test()
         all_frame += frame
         if all_frame > 20000:
