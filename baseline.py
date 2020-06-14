@@ -42,7 +42,7 @@ class Agent(object):
 
     def __init__(self, **kwargs):
         self.lr = 3e-4
-        print("updated")
+        print("updated two")
         self.batch_size = 64
         self.gamma = 0.999
         self.epsilon = 0.85
