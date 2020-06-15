@@ -100,7 +100,7 @@ class Agent(object):
         self.policy.eval()
         self.target.eval()
 
-    def step(self, step, env, m_obs, test=False):#, m_inv, test=False):
+    def step(self, step, env, m_obs, test=True):#, m_inv, test=False):
         TD_step = 2
         _reward = 0
         print(step)
