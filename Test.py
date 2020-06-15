@@ -10,8 +10,8 @@ from csv import writer, reader
 import torch.optim as optim
 import torch.distributions.categorical as categorical
 from gym_miniworld.wrappers import *
-from A2CNN2 import *
-from rpm import rpm
+from cdqn_model_res import DQN
+from rpmBaseline import rpm
 
 
 class Agent(object):
