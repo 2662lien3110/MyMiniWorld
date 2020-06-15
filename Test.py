@@ -60,7 +60,7 @@ class Agent(object):
         self.optimizer_policy = optim.Adam(self.policy.parameters(), lr = self.lr)
         self.support = torch.linspace(self.Vmin, self.Vmax, self.atoms)
 
-    def get_action(self, state, test=False):
+    def get_action(self, state, test=True):
         if test:
             epsilon = 0.1
         else:
