@@ -1,247 +1,239 @@
 import gym
-import torch
 import math
 import time
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
 from csv import writer, reader
 
-import torch.optim as optim
-import torch.distributions.categorical as categorical
 from gym_miniworld.wrappers import *
 from cdqn_model_res import DQN
 from rpmBaseline import rpm
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+#np.random.seed(1)
+#random.seed(1)
+#torch.manual_seed(1)
+#torch.cuda.manual_seed(1)
+#torch.cuda.manual_seed_all(1)
+#torch.backends.cudnn.benchmark = False
+#torch.backends.cudnn.deterministic = True
+
+start_time = time.time()
+
+def time_limit(time_out):
+    global start_time
+    end_time = time.time()
+    #print(end_time-start_time)
+    if (end_time - start_time > time_out):
+        return True
+    else:
+        return False
 
 class Agent(object):
+
     def __init__(self, **kwargs):
-        self.lr_act = 5e-3
-        self.lr_crit = 0
+        self.lr = 3e-4
+        print("updated three")
         self.batch_size = 64
+        self.gamma = 0.999
+        self.epsilon = 0.85
+        print(self.epsilon)
+        self.Vmin = -25
+        self.Vmax = 25
         self.atoms = 80
         self.actions = 3
-        self.channels = 9
-        self.gamma = 0.99
-        self.tryNum = 14
-        self.lambdaEntrop = 0.5
-        self.testR = 0
-        self.lambdaCrit = 0.5
-        self.weightDecay = False
-        self.actor = CNNBase(self.channels, self.actions, self.atoms)
-        self.optimizer_actor = optim.RMSprop(self.actor.parameters(), lr=self.lr_act, alpha= 0.99, eps=1e-5)#, weight_decay=self.weightDecay)
-        self.memory = rpm(250000)
-        self.maxReward = 0
-        self.minFrame = 0
-        self.AveRew = 0
-        self.bestEps = 0
-        self.ModUpdate = 0
-        self.maxSteps = 360
+        self.policy = DQN(9, self.actions, self.atoms)
+        self.target = DQN(9, self.actions, self.atoms)
+        self.reward = []
+        self.updata_time = 0
+        self.memory = rpm(25000)
+        self.target.load_state_dict(self.policy.state_dict())
+        self.optimizer_policy = optim.Adam(self.policy.parameters(), lr = self.lr)
+        self.support = torch.linspace(self.Vmin, self.Vmax, self.atoms)
 
-    def get_action(self, state):
+    def get_action(self, state, test=False):
+        if test:
+            epsilon = 0.1
+        else:
+            epsilon = self.epsilon
+        if random.random() < epsilon:
+            return random.randint(0, self.actions-1)
         with torch.no_grad():
             self.eval()
-            state = state.to(dtype=torch.float)
+            state = state.to(dtype=torch.float)#, device=device)
             state = state.reshape([1] + list(state.shape))
-            a, val = self.actor.act(state)
-            #print(a)
-            #tmp   = a.max(1)
-            #tmp1 = tmp[1]
-            #print("Test", tmp)
-            #randi = random.randrange(0,10)
-            #if (randi>=9):
-                #print("val", val)
-                #print("act", a)
-            #print(dist)
-            #print("Max", tmp1)
-            #pred = tmp[0].type(torch.FloatTensor)
-            #mask = 1 / 10000
-            #pred = pred / 10
-            #pred = pred + mask
-            #print(pred.type())
-            #tmp[0].to(dtype=torch.float)
-            #log = torch.log(pred)
-            log = 0.99
-        return int (a), val, log
+            tmp   = (self.policy(state) * self.support).sum(2).max(1)[1]
+        return (int (tmp))
 
+    def updata_target(self):
+        #print("update target")
+        self.target.load_state_dict(self.policy.state_dict())
+        #print("update target")
 
-    def train(self):
-        self.actor.train()
-
-    def eval(self):
-        self.actor.eval()
-
-    def save_model(self, path):
-        torch.save(self.actor.state_dict(), path + 'DQNTest.pkl')
-        self.memory.save_ipt(path)
+    def save_model(self):
+        torch.save(self.policy.state_dict(),'DQN.pkl')
+        
+    def save_model_test(self):
+        torch.save(self.policy.state_dict(),'DQNTest.pkl')
 
     def load_model(self):
-        self.actor.load_state_dict(torch.load('DQNTest.pkl'))
-        # self.memory.load_ipt(path)
+        self.policy.load_state_dict(torch.load('DQNTest.pkl'))
 
-    def train_data(self, reps, frame):
-        aloss = []
-        closs = []
-        for i in range(reps):
-            #print("update: ", i)
-            a_loss, c_loss = self.learn(frame)
-            aloss.append(a_loss)
-            closs.append(c_loss)
-        return np.mean(aloss), np.mean(closs)
+    # def updata_device(self, device=torch.device("cuda")):
+    #     self.policy = self.policy.to(device=device)
+    #     self.target = self.target.to(device=device)
 
-    def test(self, max_episode_steps, env, m_obs, i_episode):
-        rew_all = 0
-        for i in range(i_episode):
-            print("TESTING")
-            frame = 0
-            rew = 0
-            m_reward = [0 for _ in range(10)]
-            m_action = [torch.FloatTensor([0]) for _ in range(10)]
-            m_value = [torch.FloatTensor([0]) for _ in range(10)]
-            m_log = [torch.FloatTensor([0]) for _ in range(10)]
-            state = [state_to(m_obs[-3:]) for _ in range(10)]  # the last 3 items
-            # print("state: ", type(state), len(state))
-            _reward = []
-            done = False
-            frame = 0
-            batch_frame = 0
+    def train(self):
+        self.policy.train()
+        self.target.train()
 
-            while frame<max_episode_steps:
-                action_num, value, log = self.get_action(state[-1])
-                s_1, r, done, info, t = envstep(env, action_num)
-                frame += t
-                rew += r
-                for i in range(9):
-                    m_obs[i] = m_obs[i + 1]
-                    state[i] = state[i + 1]
-                    m_reward[i] = m_reward[i + 1]
-                    m_action[i] = m_action[i + 1]
-                    m_value[i] = m_value[i + 1]
-                    m_log[i] = m_log[i + 1]
+    def eval(self):
+        self.policy.eval()
+        self.target.eval()
 
-                m_obs[-1] = np2torch(s_1)
+    def step(self, step, env, m_obs, test=False):#, m_inv, test=False):
+        TD_step = 2
+        _reward = 0
+        print(step)
+        frame = 0
+        done = False
+        m_reward = [0 for _ in range(10)]
+        m_action = [torch.tensor([0]) for _ in range(10)]
+        state = [state_to(m_obs[-3:]) for _ in range(10)]
+        while frame < step:
+            action_num = self.get_action(state[-1], test)
+            obs, rew, done, info, t = envstep(env, action_num)
+            #print(rew)
+            _reward += rew
+            frame += t
+
+            for i in range(9):
+                m_obs[i] = m_obs[i+1]
+                #m_inv[i] = m_inv[i+1]
+                state[i] = state[i+1]
+                m_reward[i] = m_reward[i+1]
+                m_action[i] = m_action[i+1]
+
+
+            if not done :
+                m_obs[-1] = np2torch(obs)
+                #m_inv[-1] = obs['inventory']
                 state[-1] = state_to(m_obs[-3:])
-                m_reward[-1] = torch.FloatTensor([r])
-                m_action[-1] = torch.FloatTensor([action_num])
-                m_value[-1] = torch.FloatTensor([value])
-                m_log[-1] = torch.FloatTensor([log])
-                #reward = torch.tensor(sum(rew))
+                m_reward[-1] = rew
+                m_action[-1] = torch.tensor([action_num])
 
-                if done:
-                    env.reset()
-                    rew_all += rew
+            if not test:
+                reward, gam = 0.0, 1.0
+                for i in range(TD_step):
+                    reward += gam * m_reward[i-TD_step]
+                    gam *= self.gamma
+                reward = torch.tensor([reward])
+                _done = torch.tensor([0.0])
+                gam = torch.tensor([gam])
+                important = reward > 0.0
+                if frame >= TD_step and reward < 2.1:
+                    self.memory.push([state[-TD_step-1], m_action[-TD_step], state[-1], reward, _done, gam], important)
+
+            if done and not test:
+                for i in range(TD_step-1):
+                    reward, gam = 0.0, 1.0
+                    for k in range(TD_step-i-1):
+                        reward += gam * m_reward[i-TD_step+1+k]
+                        gam *= self.gamma
+                    reward = torch.tensor([reward])
+                    _done = torch.tensor([1.0])
+                    gam = torch.tensor([gam])
+                    important = reward > 0
+                    self.memory.push([state[-TD_step+i], m_action[-TD_step+i+1], state[-1], reward, _done, gam], important)
+                env.reset()
 
 
-                if frame == (max_episode_steps-1):
-                    #print_testresults(rew, frame)
-                    env.reset()
-                    print(rew)
+        if not test:
+            return _reward, frame
 
-            write_episode(rew, frame, 0)
-
-            if rew_all>self.testR:
-                self.testR = rew_all
-                #self.save_model('train' + str(self.tryNum) + '/' + 'test/')
+        return _reward, done
 
 
 def np2torch(s):
     state = torch.from_numpy(s.copy())
-    state.to(dtype=torch.float)
-    #state = state.reshape([1] + list(state.shape))
-    return state#, device=device)
+    return state.to(dtype=torch.float)
 
 def state_to(pov):
-    state = torch.cat(pov, 2) #concatenates given sequence of tensors in given dimension
-    state = state.permute(2, 0, 1) #permute dimensions of tensor
+    state = torch.cat(pov, 2)
+    state = state.permute(2, 0, 1)
     return state#.to(torch.device('cpu'))
-
-def do_print(loss, aclos, critlos, entropy):
-    print('loss %2.7f acloss %2.7f critloss %2.7f entropy %2.7f' % \
-          (loss, aclos, critlos, entropy))
-
 
 def envstep(env, action_num):
     reward = 0
-    #print(action)
-    obs, rew, done, info = env.step(action_num)
-    env.render('human', view='top')
-    #rew = -0.01
-    if rew>0:
-        print("REWARD")
-        #rew = torch.LongTensor(rew)
-    return obs, rew, done, info, 1
+    action = action_num
+    for i in range(4):
+        obs, rew, done, info = env.step(action)
+        #env.render('human')
+        reward += rew
+        if done: #or action_num == 3 or action_num == 4:
+            return obs, reward, done, info, i+1
+    return obs, reward, done, info, 4
 
-def plotGraph(episodes, codeName, rew_all, Plotrew_all, list_lr, list_ac_loss, i_episode, entropy):
-    plt.figure()
-    plt.plot(episodes, rew_all, 'r--', episodes, list_lr, 'b.')
-    plt.savefig('/home/annalien/Pictures/Skripsie graphs/AC/Try15/' + str(codeName) + 'A2C2Episode' + str(i_episode) + '.png')
-    plt.close()
-    plt.figure()
-    plt.plot(episodes, Plotrew_all, 'r--', episodes, list_ac_loss, 'b--')
-    plt.savefig('/home/annalien/Pictures/Skripsie graphs/AC/Try15/' + str(codeName) + 'A2C2Loss' + str(i_episode) + '.png')
-    plt.close()
-
-def read():
-    with open ('BSLResults.csv', 'r') as f:
-        Reader1 = reader(f, delimiter=',')
-        Rows = list(Reader1)
-        Tot_rows = len(Rows)
-    return Tot_rows
-
-def write(Agent1, cdName, AveRew, sum_episodes, tot_frame):
+def write_episode(loss, _rew, Q):
     with open('BSLResults.csv', 'a', newline='') as write_obj:
         csv_writer = writer(write_obj)
-        csv_writer.writerow([str(cdName), "AC2", str(Agent1.lr_act), str(Agent1.lr_crit),
-                             str(Agent1.gamma),str(Agent1.lambdaCrit),str(Agent1.lambdaEntrop),
-                             str(Agent1.weightDecay), str(Agent1.maxReward),
-                             str(Agent1.minFrame), str(Agent1.bestEps),
-                             str(AveRew), str(tot_frame), str(Agent1.maxSteps), str(sum_episodes),
-                             str(Agent1.ModUpdate), str(Agent1.batch_size), str(Agent1.channels)])
-def print_testresults(rew, frame):
+        csv_writer.writerow([_rew, loss, Q])
+
+def write_start():
     with open('BSLResults.csv', 'a', newline='') as write_obj:
         csv_writer = writer(write_obj)
-        csv_writer.writerow(["TEST", rew, frame])
-
-def write_episode(_rew, frame, entropy):
-    with open('BSLResults.csv', 'a', newline='') as write_obj:
-        csv_writer = writer(write_obj)
-        csv_writer.writerow([_rew, frame, entropy])
+        csv_writer.writerow(["START"])
 
 
+def train(episode):
 
-def train(episode, env):
-
-    Agent1 = Agent()
-    Agent1.load_model() #gym-miniworld/scripts/train14/test (another copy)
+    #print('Start train')
+    env = gym.make('MiniWorld-OneRoom-v0')
+    
+    agent1 = Agent()  # treechop
+    #agent1.updata_device()
+    #agent1.load_model()
+    write_start()
+    max_reward = 0
+    env.max_episode_steps = 1000
     sum_episodes = episode
+    all_frame = 0
     rew_all = []
-    Plotrew_all = []
-    codeName = read()
-    list_lr = []
-    list_ac_loss = []
-    list_crit_loss = []
-    tot_rew = 0
-    tot_frame = 0
-    obs = env.reset()
-    # env.render('human')
-    m_obs = [np2torch(obs) for _ in range(10)]
-    Agent1.test(env.max_episode_steps, env, m_obs, sum_episodes)
+    for i_episode in range(sum_episodes):
+        env.seed(i_episode)
+        obs = env.reset()
+        #env.render('human')
+        done = False
 
-    #Agent1.save_model('train' + str(Agent1.tryNum) + '/test/')
-    write(Agent1, codeName, sum_episodes, tot_frame)
+        m_obs = [np2torch(obs) for _ in range(10)]
+        #m_inv = [obs['inventory'] for _ in range(10)]
+        _reward = 0
+        frame = 0
+        _reward, frame = agent1.step(1000, env, m_obs)#, m_inv)
+        Q = 0
+        loss = 0
+        write_episode(loss, _reward, Q)
+        
+        # writer.add_scalar('validate/Q-value', Q, i_episode)
+        # writer.add_scalar('validate/Q-loss', loss, i_episode)
+        # writer.add_scalar('validate/total_reward', _reward, i_episode)
+        # writer.add_scalar('validate/step', all_frame, i_episode)
+        if i_episode > sum_episodes :
+            break
 
-
+    # reset rpm
+    agent1.memory.clear()
+    agent1.save_model()
+    env.close()
 
 if __name__ == '__main__':
-    print("Make environment")
-    env = gym.make('MiniWorld-OneRoom-v0')
-    #env = RGBImgPartialObsWrapper(env)
-    #env = ImgObsWrapper(env)
-    env.render('human', view='top')
-    env.framerate = 5
-    done = False
-    obs = env.reset()
-    env.seed(1000)
-    #print(obs.shape())
-    env.max_episode_steps =1000
-    train(50, env)
+    train(50)
