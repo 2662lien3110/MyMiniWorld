@@ -112,8 +112,10 @@ class Agent(object):
         while frame < step:
             action_num = self.get_action(state[-1], test)
             obs, rew, done, info, t = envstep(env, action_num)
-            #print(rew)
-            _reward += rew
+            if rew>0:
+                print(rew)
+                _reward += rew
+                print(_reward)
             frame += t
 
             for i in range(9):
@@ -131,29 +133,7 @@ class Agent(object):
                 m_reward[-1] = rew
                 m_action[-1] = torch.tensor([action_num])
 
-            if not test:
-                reward, gam = 0.0, 1.0
-                for i in range(TD_step):
-                    reward += gam * m_reward[i-TD_step]
-                    gam *= self.gamma
-                reward = torch.tensor([reward])
-                _done = torch.tensor([0.0])
-                gam = torch.tensor([gam])
-                important = reward > 0.0
-                if frame >= TD_step and reward < 2.1:
-                    self.memory.push([state[-TD_step-1], m_action[-TD_step], state[-1], reward, _done, gam], important)
-
-            if done and not test:
-                for i in range(TD_step-1):
-                    reward, gam = 0.0, 1.0
-                    for k in range(TD_step-i-1):
-                        reward += gam * m_reward[i-TD_step+1+k]
-                        gam *= self.gamma
-                    reward = torch.tensor([reward])
-                    _done = torch.tensor([1.0])
-                    gam = torch.tensor([gam])
-                    important = reward > 0
-                    self.memory.push([state[-TD_step+i], m_action[-TD_step+i+1], state[-1], reward, _done, gam], important)
+            if done:
                 env.reset()
 
 
