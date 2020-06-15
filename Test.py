@@ -72,11 +72,11 @@ class Agent(object):
         self.actor.eval()
 
     def save_model(self, path):
-        torch.save(self.actor.state_dict(), path + 'A2C.pkl')
+        torch.save(self.actor.state_dict(), path + 'DQNTest.pkl')
         self.memory.save_ipt(path)
 
     def load_model(self):
-        self.actor.load_state_dict(torch.load('train14/best/A2C.pkl'))
+        self.actor.load_state_dict(torch.load('DQNTest.pkl'))
         # self.memory.load_ipt(path)
 
     def train_data(self, reps, frame):
@@ -133,7 +133,7 @@ class Agent(object):
 
 
                 if frame == (max_episode_steps-1):
-                    print_testresults(rew, frame)
+                    #print_testresults(rew, frame)
                     env.reset()
                     print(rew)
 
@@ -141,7 +141,7 @@ class Agent(object):
 
             if rew_all>self.testR:
                 self.testR = rew_all
-                self.save_model('train' + str(self.tryNum) + '/' + 'test/')
+                #self.save_model('train' + str(self.tryNum) + '/' + 'test/')
 
 
 def np2torch(s):
@@ -182,14 +182,14 @@ def plotGraph(episodes, codeName, rew_all, Plotrew_all, list_lr, list_ac_loss, i
     plt.close()
 
 def read():
-    with open ('A2CTry15.csv', 'r') as f:
+    with open ('BSLResults.csv', 'r') as f:
         Reader1 = reader(f, delimiter=',')
         Rows = list(Reader1)
         Tot_rows = len(Rows)
     return Tot_rows
 
 def write(Agent1, cdName, AveRew, sum_episodes, tot_frame):
-    with open('A2CTry15.csv', 'a', newline='') as write_obj:
+    with open('BSLResults.csv', 'a', newline='') as write_obj:
         csv_writer = writer(write_obj)
         csv_writer.writerow([str(cdName), "AC2", str(Agent1.lr_act), str(Agent1.lr_crit),
                              str(Agent1.gamma),str(Agent1.lambdaCrit),str(Agent1.lambdaEntrop),
@@ -198,12 +198,12 @@ def write(Agent1, cdName, AveRew, sum_episodes, tot_frame):
                              str(AveRew), str(tot_frame), str(Agent1.maxSteps), str(sum_episodes),
                              str(Agent1.ModUpdate), str(Agent1.batch_size), str(Agent1.channels)])
 def print_testresults(rew, frame):
-    with open('A2CTry15.csv', 'a', newline='') as write_obj:
+    with open('BSLResults.csv', 'a', newline='') as write_obj:
         csv_writer = writer(write_obj)
         csv_writer.writerow(["TEST", rew, frame])
 
 def write_episode(_rew, frame, entropy):
-    with open('AC-EpisodeTry15.csv', 'a', newline='') as write_obj:
+    with open('BSLResults.csv', 'a', newline='') as write_obj:
         csv_writer = writer(write_obj)
         csv_writer.writerow([_rew, frame, entropy])
 
@@ -244,4 +244,4 @@ if __name__ == '__main__':
     env.seed(1000)
     #print(obs.shape())
     env.max_episode_steps =1000
-    train(700, env)
+    train(50, env)
