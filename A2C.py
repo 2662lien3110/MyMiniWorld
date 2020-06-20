@@ -334,4 +334,5 @@ if __name__ == '__main__':
     env.seed(1000)
     #print(obs.shape())
     env.max_episode_steps =1000
-    train(1200, env)
+    print("2500")
+    train(2500, env)
