@@ -27,7 +27,7 @@ class Agent(object):
         self.actions = 3
         self.channels = 9
         self.gamma = 0.65
-        self.lambdaEntrop = 0.99
+        self.lambdaEntrop = 0.25
         print(self.lambdaEntrop)
         self.lambdaCrit = 0.41667
         self.weightDecay = False
@@ -334,4 +334,4 @@ if __name__ == '__main__':
     env.seed(1000)
     #print(obs.shape())
     env.max_episode_steps =1000
-    train(800, env)
+    train(1200, env)
