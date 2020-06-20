@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.DEBUG)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Agent(object):
     def __init__(self, **kwargs):
-        self.lr_act = 0.035
+        self.lr_act = 0.07
         print(self.lr_act)
         self.lr_crit = 0
         self.batch_size = 64
@@ -27,12 +27,12 @@ class Agent(object):
         self.actions = 3
         self.channels = 9
         self.gamma = 0.65
-        self.lambdaEntrop = 0.85
+        self.lambdaEntrop = 0.3
         print(self.lambdaEntrop)
         self.lambdaCrit = 0.41667
         self.weightDecay = False
         self.actor = CNNBase(self.channels, self.actions, self.atoms)
-        self.optimizer_actor = optim.RMSprop(self.actor.parameters(), lr= self.lr_act, alpha=0.88, eps=1e-5)#, alpha= 0.99, eps=1e-5)#, weight_decay=self.weightDecay)
+        self.optimizer_actor = optim.Adam(self.actor.parameters(), lr= self.lr_act)#, alpha=0.88, eps=1e-5)#, alpha= 0.99, eps=1e-5)#, weight_decay=self.weightDecay)
         self.memory = rpm(250000)
         self.maxReward = 0
         self.minFrame = 0
@@ -334,5 +334,5 @@ if __name__ == '__main__':
     env.seed(1000)
     #print(obs.shape())
     env.max_episode_steps =1000
-    print("2500")
-    train(2500, env)
+    print("5000")
+    train(5000, env)
