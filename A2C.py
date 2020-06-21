@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.DEBUG)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Agent(object):
     def __init__(self, **kwargs):
-        self.lr_act = 0.07
+        self.lr_act = 0.09
         print(self.lr_act)
         self.lr_crit = 0
         self.batch_size = 64
@@ -27,7 +27,7 @@ class Agent(object):
         self.actions = 3
         self.channels = 9
         self.gamma = 0.65
-        self.lambdaEntrop = 0.3
+        self.lambdaEntrop = 0.005
         print(self.lambdaEntrop)
         self.lambdaCrit = 0.41667
         self.weightDecay = False
